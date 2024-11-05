@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>FarmaWiki - Visualizador de Alergias</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light naranjo-01">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="imagenes/capsule.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+            FarmaWiki
+        </a>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link active" href="receta_visualizador.html">Recetas</a></li>
+                <li class="nav-item"><a class="nav-link active" href="alergia_visualizador.html">Alergias</a></li>
+                <li class="nav-item"><a class="nav-link active" href="index.html">Cerrar sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-end">
+            <button class="btn btn-success" id="btnRegistrarAlergia">Registrar una Alergia</button>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-8 mx-auto">
+                <div class="card text-center h-100">
+                    <div class="card-header"></div>
+                    <div class="card-body">
+                        <h4 class="mt-4">Listado de Alergias</h4>
+                        <table class="table table-striped" id="alergiaTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer text-muted"><small> </small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar esta alergia?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminacion">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="visualizadorAlergia.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
