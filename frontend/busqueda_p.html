@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>FarmaWiki</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light naranjo-01">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="inicio_medico.html">
+      <img src="imagenes/capsule.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+      FarmaWiki
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="busqueda_p.html">
+                <img src="imagenes/buscar_p.png" alt="" width="24" height="24" class="d-inline-block align-text-top me-2">
+                Buscar Pacientes
+              </a>
+            </li>
+    
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="perfil_medico.html">
+                <img src="imagenes/persona_03.svg" alt="" width="30" height="24" class="d-inline-block align-text-top me-2">
+                Perfil
+              </a>
+            </li>
+    
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="receta_formulario.html">
+                <img src="imagenes/bote_pastilla.svg" alt="" width="30" height="24" class="d-inline-block align-text-top me-2">
+                Recetas
+              </a>
+            </li>
+    
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="alergia_visualizador.html">
+                <img src="imagenes/virus.svg" alt="" width="30" height="24" class="d-inline-block align-text-top me-2">
+                Alergias
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="index.html">
+                <img src="imagenes/salida.svg" alt="" width="30" height="24" class="d-inline-block align-text-top me-2">
+                Cerrar sesión 
+              </a>
+            </li>
+        <!-- Otros elementos del menú -->
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <!-- Barra de búsqueda de pacientes -->
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Buscar Pacientes</h5>
+          <div class="input-group">
+            <input type="text" class="form-control" id="searchPatient" placeholder="Ingrese nombre del paciente...">
+            <button class="btn btn-primary naranjo-02 border-0" id="searchButton">Buscar</button>
+          </div>
+          <div id="searchResults" class="mt-4">
+            <!-- Resultados de la búsqueda aparecerán aquí -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts de Bootstrap y JavaScript personalizado -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+<script>
+  // JavaScript para búsqueda de pacientes
+  document.getElementById('searchButton').addEventListener('click', function() {
+    const searchTerm = document.getElementById('searchPatient').value.toLowerCase();
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = ''; // Limpiar resultados previos
+
+    // Simulación de pacientes registrados
+    const pacientes = [
+      { nombre: 'Juan Pérez', id: 1 },
+      { nombre: 'María García', id: 2 },
+      { nombre: 'Carlos López', id: 3 },
+      { nombre: 'Ana Torres', id: 4 }
+    ];
+
+    // Filtrar pacientes que coincidan con el término de búsqueda
+    const resultados = pacientes.filter(paciente => paciente.nombre.toLowerCase().includes(searchTerm));
+
+    if (resultados.length > 0) {
+      resultados.forEach(paciente => {
+        const pacienteItem = document.createElement('div');
+        pacienteItem.className = 'alert alert-secondary';
+        pacienteItem.innerText = `Nombre: ${paciente.nombre} - ID: ${paciente.id}`;
+        searchResults.appendChild(pacienteItem);
+      });
+    } else {
+      const noResult = document.createElement('div');
+      noResult.className = 'alert alert-warning';
+      noResult.innerText = 'No se encontraron pacientes con ese nombre.';
+      searchResults.appendChild(noResult);
+    }
+  });
+</script>
+
+</body>
+</html>
