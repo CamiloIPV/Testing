@@ -49,3 +49,12 @@ body {
   }
 
 
+/* Estilo opcional para mejorar la alineación de la barra de búsqueda */
+.nav-item .form-control {
+    width: 200px; /* Ajusta el ancho según prefieras */
+  }
+  .nav-item .btn {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+  }
