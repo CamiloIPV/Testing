@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
@@ -10,15 +11,16 @@ const AWS = require('aws-sdk'); // Agregamos el SDK de AWS
 const app = express();
 const PORT = 3000;
 
+// Configuración de middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../frontend'))); // Sirve archivos estáticos desde la carpeta frontend
+app.use(express.static(path.join(__dirname, '../Frontend'))); // Sirve archivos estáticos desde la carpeta Frontend
 
-// Configurar DynamoDB
+// Configuración de AWS
 AWS.config.update({
-  region: 'us-east-1', // Asegúrate de que esta región coincida con la configuración de tu DynamoDB
+  region: awsConfig.region, // Asegúrate de que esta región coincida con la configuración de tu Cognito
 });
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 const poolData = {
   UserPoolId: awsConfig.userPoolId,
@@ -27,28 +29,29 @@ const poolData = {
 
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-// Registro de usuario
-app.post('/register', (req, res) => {
-  const { username, password, email } = req.body;
+// Endpoint de registro de usuario
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
 
-  const attributeList = [
-    new AmazonCognitoIdentity.CognitoUserAttribute({
-      Name: 'email',
-      Value: email,
-    }),
-  ];
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
+  }
 
-  userPool.signUp(username, password, attributeList, null, (err, result) => {
-    if (err) {
-      return res.status(400).json({ error: err.message || JSON.stringify(err) });
-    }
-    res.json({ message: 'Usuario registrado correctamente', username: result.user.getUsername() });
-  });
+  try {
+    const newUser = await registerUser({ username, email, password });
+    res.json({ message: 'Registro exitoso', user: newUser.getUsername() });
+  } catch (err) {
+    res.status(400).json({ error: err.message || JSON.stringify(err) });
+  }
 });
 
 // Login de usuario
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
 
   const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
     Username: username,
@@ -63,11 +66,36 @@ app.post('/login', (req, res) => {
   const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
   cognitoUser.authenticateUser(authenticationDetails, {
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
+      const idToken = result.getIdToken().getJwtToken();
       const accessToken = result.getAccessToken().getJwtToken();
-      res.json({ message: 'Login exitoso', accessToken });
+
+      // Obtener los grupos de usuarios
+      const params = {
+        UserPoolId: awsConfig.userPoolId,
+        Username: username,
+      };
+
+      try {
+        const userGroups = await cognitoIdentityServiceProvider.adminListGroupsForUser(params).promise();
+        const groups = userGroups.Groups.map(group => group.GroupName);
+
+        // Verificar que el usuario pertenezca a al menos uno de los grupos permitidos
+        const allowedGroups = ['medicos', 'pacientes', 'farmaceuticos'];
+        const isUserInAllowedGroup = groups.some(group => allowedGroups.includes(group.toLowerCase()));
+
+        if (!isUserInAllowedGroup) {
+          return res.status(403).json({ error: 'Acceso denegado: No pertenece a un grupo permitido' });
+        }
+
+        res.json({ message: 'Login exitoso', idToken, accessToken, groups });
+      } catch (err) {
+        console.error('Error al obtener grupos de usuario:', err);
+        res.status(400).json({ error: err.message || JSON.stringify(err) });
+      }
     },
     onFailure: (err) => {
+      console.error('Error en la autenticación:', err);
       res.status(400).json({ error: err.message || JSON.stringify(err) });
     },
   });
@@ -94,8 +122,10 @@ app.get('/api/search', (req, res) => {
     });
 });
 
-
 // Iniciar el servidor en el puerto 3000
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
+
+
+
