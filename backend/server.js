@@ -45,12 +45,21 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login de usuario
+// Login de usuario con restricción de dominios específicos y verificación de grupo
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  // Lista de dominios permitidos
+  const allowedDomains = ['gmail.com', 'outlook.com', 'yahoo.com', 'medico.cl', 'paciente.cl'];
+
+  // Verificar si el dominio del correo está en la lista permitida
+  const emailDomain = username.split('@')[1]; // Extraer el dominio del correo electrónico
+  if (!allowedDomains.includes(emailDomain)) {
+    return res.status(403).json({ error: 'Acceso denegado: Dominio de correo no permitido' });
   }
 
   const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
@@ -81,8 +90,10 @@ app.post('/login', (req, res) => {
         const groups = userGroups.Groups.map(group => group.GroupName);
 
         // Verificar que el usuario pertenezca a al menos uno de los grupos permitidos
-        const allowedGroups = ['medicos', 'pacientes', 'farmaceuticos'];
-        const isUserInAllowedGroup = groups.some(group => allowedGroups.includes(group.toLowerCase()));
+        const allowedGroups = ['Medico', 'Paciente'];
+        const isUserInAllowedGroup = groups.some(group => 
+          allowedGroups.map(g => g.toLowerCase()).includes(group.toLowerCase())
+        );
 
         if (!isUserInAllowedGroup) {
           return res.status(403).json({ error: 'Acceso denegado: No pertenece a un grupo permitido' });
@@ -100,6 +111,9 @@ app.post('/login', (req, res) => {
     },
   });
 });
+
+
+
 
 // Endpoint para buscar en la API de MedlinePlus
 app.get('/api/search', (req, res) => {
